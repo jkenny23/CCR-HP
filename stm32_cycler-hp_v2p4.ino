@@ -223,17 +223,17 @@ volatile uint8 mode1 = 5;
 uint8 irstate1 = 0;
 uint16 cycle_count_1 = 0;
 volatile uint16 settle1 = 0;
-int16 vr1 = 0;
-int16 vr2 = 0;
-int16 vbati1 = 0;
+uint16 vr1 = 0;
+uint16 vr2 = 0;
+uint16 vbati1 = 0;
 int16 ibati1 = 0;
 uint8 ltcc_count = 0;
-int16 vbat_now1 = 0;
+uint16 vbat_now1 = 0;
 int16 ibat_now1 = 0;
 float tmpfl = 0;
 float vbat1 = 0;
 float ibat1 = 0;
-volatile int vbat_1_1 = 0;
+volatile unsigned int vbat_1_1 = 0;
 volatile int ibat_1_1 = 0;
 float vload1 = 0;
 float iload1 = 0;
@@ -327,8 +327,10 @@ unsigned short getDisPwr(){
   
   if ((state1 == 1) || (state1 == 6) || (state1 == 7)) //Discharging states
   {
-    power = discharge_current_1*charge_voltage_1/1000;
+    power = discharge_current_1*vbat_1_1/1000;
   }
+  if(power > 65000)
+    power = 65000; //Bound to 65535 for unsigned short
 
   return (unsigned short)power; //Returns power in mW
 }
@@ -404,7 +406,7 @@ void setChg1(unsigned char state) {
         //Enable top right FET
         pinMode(C1DOFF, OUTPUT);
         digitalWrite(C1DOFF, HIGH);
-        if(discharge_current_1 > 3000)
+        if(getDisPwr() > 10000)
         {
           //Enable 3 discharge FETs if setting >3A
           pinMode(C2DOFF, OUTPUT);
@@ -691,7 +693,7 @@ void setup() {
   estatus = EEPROM.read(ADC2ILADDR, &wData);
   if(estatus == 0)
   {
-    if(wData > 1200 || wData < 800)
+    if(wData > 2000 || wData < 800)
     {
       Serial.println("> L Ical out of range, using default.");
     }
