@@ -1832,7 +1832,7 @@ void runStateMachine(void)
     if (irstate1 == 2)
     {
       //Iload in mA/8 (mA*2 * (500/2000) * 0.25)
-      iload1 = iload1 + ((float)adcval1 - adciref) / ADC2IL; //Accumulate current samples from 250-500ms
+      iload1 = iload1 + (((float)adcval1*ADC2IDL) - (float)adciref) / ADC2IL; //Accumulate current samples from 250-500ms
       //Vload in mV/8 (mV*2 * (500/2000) * 0.25)
       vload1 = vload1 + ((float)adcval2) / ADC2VL; //Accumulate voltage samples from 250-500ms
     }
